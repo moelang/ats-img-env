@@ -1,0 +1,105 @@
+name: eloquent pc
+
+on:
+  push:
+    branches:
+      - 'main'
+      - 'dev'
+    tags:
+      - v*
+
+  workflow_dispatch:
+
+jobs:
+  eloquent-pc:
+    runs-on: ubuntu-latest
+    env:
+      REPO: https://github.com/${{ github.repository }}
+      FROM_SRC_IMAGE: ghcr.io/${{ github.repository_owner }}/src-ros2
+      DOCKER_REPO_1: ghcr.io/${{ github.repository_owner }}/core-eloquent-pc
+      DOCKER_REPO_2: ghcr.io/${{ github.repository_owner }}/base-eloquent-pc
+      DOCKER_REPO_3: ghcr.io/${{ github.repository_owner }}/runtime-eloquent-pc
+      DOCKER_REPO_4: ghcr.io/${{ github.repository_owner }}/build-eloquent-pc
+      DOCKER_REPO_5: ghcr.io/${{ github.repository_owner }}/devel-eloquent-pc
+    steps:
+    -
+      name: Login to GitHub Container Registry
+      uses: docker/login-action@v1
+      with:
+        registry: ghcr.io
+        username: ${{ github.repository_owner }}
+        password: ${{ secrets.GHCR_TOKEN }}
+    - 
+      name: Checkout
+      uses: actions/checkout@v2
+    -
+      name: Get VER
+      id: ver
+      run: |
+        ver=$(git describe --exact-match --tags $(git log -n1 --pretty='%h')) || ver=latest
+        export VER=$ver
+        echo ::set-output name=VER::$VER
+    -
+      name: Get SHA
+      id: sha
+      run: |
+        sha=$(git rev-list --max-count=1 HEAD)
+        export SHA=$sha
+        echo ::set-output name=SHA::$SHA
+    - 
+      name: Build and push the core docker image
+      run: |
+        TAG=${{ steps.ver.outputs.VER }}
+        TAGS="--tag ${DOCKER_REPO_1}"
+        if [ $TAG != latest ]; then
+          TAGS="$TAGS --tag ${DOCKER_REPO_1}:${TAG}"
+        fi
+        docker build . --file core.dockerfile ${TAGS} --build-arg REPO=$REPO --build-arg VER=${{ steps.ver.outputs.VER }} --build-arg SHA=${{ steps.sha.outputs.SHA }} --build-arg FROM_IMAGE=nvidia/cudagl:11.1-runtime-ubuntu18.04
+        docker push ${DOCKER_REPO_1}
+        docker push ${DOCKER_REPO_1}:${TAG}
+    - 
+      name: Build and push the base docker image
+      run: |
+        TAG=${{ steps.ver.outputs.VER }}
+        TAGS="--tag ${DOCKER_REPO_2}"
+        if [ $TAG != latest ]; then
+          TAGS="$TAGS --tag ${DOCKER_REPO_2}:${TAG}"
+        fi
+        docker build . --file base.eloquent.dockerfile ${TAGS} --build-arg FROM_IMAGE=$DOCKER_REPO_1
+        docker push ${DOCKER_REPO_2}
+        docker push ${DOCKER_REPO_2}:${TAG}
+    - 
+      name: Build the runtime docker image
+      run: |
+        TAG=${{ steps.ver.outputs.VER }}
+        TAGS="--tag ${DOCKER_REPO_3}"
+        if [ $TAG != latest ]; then
+          TAGS="$TAGS --tag ${DOCKER_REPO_3}:${TAG}"
+        fi
+        docker build . --file runtime.eloquent.dockerfile --tag tmp --build-arg FROM_IMAGE=$DOCKER_REPO_2
+        docker build . --file runtime.dockerfile ${TAGS} --build-arg FROM_IMAGE=tmp
+        docker push ${DOCKER_REPO_3}
+        docker push ${DOCKER_REPO_3}:${TAG}
+    - 
+      name: Build and push the build docker image
+      run: |
+        TAG=${{ steps.ver.outputs.VER }}
+        TAGS="--tag ${DOCKER_REPO_4}"
+        if [ $TAG != latest ]; then
+          TAGS="$TAGS --tag ${DOCKER_REPO_4}:${TAG}"
+        fi
+        docker build . --file build.eloquent.dockerfile --tag tmp --build-arg FROM_IMAGE=$DOCKER_REPO_3 --build-arg FROM_SRC_IMAGE=$FROM_SRC_IMAGE
+        docker build . --file build.dockerfile ${TAGS} --build-arg FROM_IMAGE=tmp
+        docker push ${DOCKER_REPO_4}
+        docker push ${DOCKER_REPO_4}:${TAG}
+    - 
+      name: Build and push the devel docker image
+      run: |
+        TAG=${{ steps.ver.outputs.VER }}
+        TAGS="--tag ${DOCKER_REPO_5}"
+        if [ $TAG != latest ]; then
+          TAGS="$TAGS --tag ${DOCKER_REPO_5}:${TAG}"
+        fi
+        docker build . --file devel.dockerfile ${TAGS} --build-arg FROM_IMAGE=$DOCKER_REPO_4
+        docker push ${DOCKER_REPO_5}
+        docker push ${DOCKER_REPO_5}:${TAG}
