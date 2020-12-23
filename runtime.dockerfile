@@ -3,7 +3,7 @@ FROM ${FROM_IMAGE}
 
 RUN apt-get update \
     && rosdep init \
-    && rosdep update \
+    && rosdep update --rosdistro=${ROS_DISTRO} \
     && apt-get install -q -y --no-install-recommends \
     ros-${ROS_DISTRO}-ros-core \
     && rm -rf /var/lib/apt/lists/*
