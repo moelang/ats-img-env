@@ -11,7 +11,7 @@ RUN apt-get update && apt-get install -q -y --no-install-recommends \
     python3-vcstool \
     && rm -rf /var/lib/apt/lists/*
 
-RUN pip install wheel gdown future
+RUN $PIP install wheel gdown future
 
 RUN geographiclib-get-geoids egm2008-1
 
