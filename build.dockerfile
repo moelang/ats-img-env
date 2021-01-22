@@ -30,3 +30,5 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/*
 
 RUN ${PIP} install gdown
+
+RUN curl https://sh.rustup.rs -sSf | sh
