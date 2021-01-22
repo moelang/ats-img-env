@@ -5,6 +5,8 @@ RUN apt-get update && apt-get install -q -y --no-install-recommends \
     build-essential \
     geographiclib-tools \
     git \
+    maven \
+    openjdk-8-jdk-headless \
     python3-colcon-common-extensions \
     python3-colcon-mixin \
     python3-pip \
@@ -19,7 +21,6 @@ RUN git clone -b v2.3.0 --depth 1 --recursive https://github.com/Livox-SDK/Livox
     && mkdir -p /livox_sdk/build \
     && cd /livox_sdk/build \
     && cmake .. \
-    && make \
     && make install \
     && rm -rf /livox_sdk
 
