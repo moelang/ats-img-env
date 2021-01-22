@@ -6,6 +6,7 @@ RUN apt-get update \
     && rosdep update --rosdistro=${ROS_DISTRO} \
     && apt-get install -q -y --no-install-recommends \
     ros-${ROS_DISTRO}-ros-core \
+    ros-foxy-rmw-cyclonedds-cpp \
     && rm -rf /var/lib/apt/lists/*
 
 COPY ./ros_entrypoint.sh /
