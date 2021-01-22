@@ -24,6 +24,13 @@ RUN git clone -b v2.3.0 --depth 1 --recursive https://github.com/Livox-SDK/Livox
     && make install \
     && rm -rf /livox_sdk
 
+RUN git clone --depth 1 --recursive https://github.com/moelang/cyclocut.git /cyclocut \
+    && mkdir -p /cyclocut/build \
+    && cd /cyclocut/build \
+    && cmake .. \
+    && make install \
+    && rm -rf /cyclocut
+
 RUN apt-get update \
     && cat /tmp/ros-deps \
     && sh /tmp/ros-deps \
