@@ -33,4 +33,9 @@ RUN ${PIP} install gdown
 
 RUN curl https://sh.rustup.rs -sSf | sh -s -- -y
 
-RUN git clone --depth 1 --recursive https://github.com/moelang/cyclocut.git /cyclocut
+RUN git clone -b ros2 --depth 1 --recursive https://github.com/moelang/cyclocut.git /cyclocut \
+    && mkdir -p /cyclocut/build \
+    && cd /cyclocut/build \
+    && cmake .. \
+    && make install \
+    && rm -rf /cyclocut
