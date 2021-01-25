@@ -40,7 +40,7 @@ RUN git clone -b ros2 --depth 1 --recursive https://github.com/moelang/cyclocut.
     && make install \
     && rm -rf /cyclocut
 
-RUN git clone -b ros2 --depth 1 --recursive https://github.com/moelang/zenoh-plugin-dds.git /zenoh-plugin-dds \
+RUN git clone -b foxy --depth 1 --recursive https://github.com/moelang/zenoh-plugin-dds.git /zenoh-plugin-dds \
     && cd /zenoh-plugin-dds \
     && rustup install nightly \
     && cargo +nightly install --release --all-targets --path .
