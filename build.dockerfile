@@ -31,7 +31,7 @@ RUN apt-get update \
 
 RUN ${PIP} install gdown
 
-RUN curl https://sh.rustup.rs -sSf | sh -s -- -y
+RUN curl https://sh.rustup.rs -sSf | sh -s -- -y --default-toolchain nightly
 
 RUN git clone -b ros2 --depth 1 --recursive https://github.com/moelang/cyclocut.git /cyclocut \
     && mkdir -p /cyclocut/build \
@@ -40,7 +40,7 @@ RUN git clone -b ros2 --depth 1 --recursive https://github.com/moelang/cyclocut.
     && make install \
     && rm -rf /cyclocut
 
-RUN git clone -b foxy --depth 1 --recursive https://github.com/moelang/zenoh-plugin-dds.git /zenoh-plugin-dds \
-    && cd /zenoh-plugin-dds \
-    && rustup install nightly \
-    && cargo +nightly install --release --all-targets --path .
+RUN git clone -b foxy --depth 1 --recursive https://github.com/moelang/zenoh-plugin-dds.git /zenoh-plugin-dds
+    # && cd /zenoh-plugin-dds \
+    # && rustup install nightly \
+    # && cargo +nightly install --release --all-targets --path .
