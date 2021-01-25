@@ -13,6 +13,8 @@ LABEL org.opencontainers.image.source ${REPO}
 
 ENV DEBIAN_FRONTEND=noninteractive
 
+SHELL ["/bin/bash", "-c"]
+
 RUN echo 'Etc/UTC' > /etc/timezone && \
     ln -sf /usr/share/zoneinfo/Etc/UTC /etc/localtime && \
     apt-get update && \
